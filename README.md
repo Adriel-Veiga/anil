@@ -1,6 +1,6 @@
 # Anil
 
-Hub de comunicação interáreas em tempo real para ocorrências operacionais.
+Software de comunicações operacionais.
 
 Proposta de solução para a **Seletiva da Azul Linhas Aéreas**, com foco no **Tema 3: Comunicação Interáreas em Tempo Real**
 
@@ -39,14 +39,6 @@ Navegador (public/ + web/)  →  API Express (src/servidor.ts)  →  Banco SQLit
 - **SQL (SQLite):** modelagem do banco e gestão dos níveis de acesso.
 - **Conceitos de IA e segurança:** tradutor de jargão por regras e modelos de mensagem, e boas práticas de tratamento de informações sensíveis, a partir das certificações Google AI Essentials e Sensibilização para a Segurança Digital (Cisco).
 
-## Segurança
-
-- Controle de acesso por perfil, validado no servidor em cada rota.
-- Senhas armazenadas com hash `scrypt` e sal, com comparação em tempo constante.
-- Consultas SQL parametrizadas (proteção contra SQL injection).
-- Textos exibidos na tela com `textContent`, sem `innerHTML` (proteção contra XSS).
-- Sessão do front-end em `sessionStorage` (uma sessão por aba) e logout automático quando o token deixa de valer.
-- Todos os dados de voos, passageiros e usuários são **fictícios**.
 
 ## Como executar localmente
 
