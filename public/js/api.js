@@ -1,4 +1,4 @@
-const CHAVE_SESSAO = 'azul-sync-sessao';
+const CHAVE_SESSAO = 'anil-sessao';
 const PERFIS = ['MANUTENCAO_CCO', 'ATENDIMENTO_COMERCIAL', 'CLIENTE'];
 let aoExpirar = () => { };
 // registra o que fazer quando o servidor recusar o token (401)

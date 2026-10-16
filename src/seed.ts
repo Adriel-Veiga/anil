@@ -9,9 +9,9 @@ const senhaDemo = gerarHash('azul123');
 const inserirUsuario = db.prepare(
   'INSERT INTO usuarios (nome, email, senha_hash, perfil_id) VALUES (?, ?, ?, ?)'
 );
-inserirUsuario.run('Carla Mendes (CCO)', 'cco@azulsync.test', senhaDemo, 1);
-inserirUsuario.run('Rafael Lima (Atendimento)', 'atendimento@azulsync.test', senhaDemo, 2);
-inserirUsuario.run('Paula Souza (Cliente)', 'cliente@azulsync.test', senhaDemo, 3);
+inserirUsuario.run('Carla Mendes (CCO)', 'cco@anil.test', senhaDemo, 1);
+inserirUsuario.run('Rafael Lima (Atendimento)', 'atendimento@anil.test', senhaDemo, 2);
+inserirUsuario.run('Paula Souza (Cliente)', 'cliente@anil.test', senhaDemo, 3);
 
 const inserirVoo = db.prepare(
   'INSERT INTO voos (id, numero, origem, destino, status) VALUES (?, ?, ?, ?, ?)'

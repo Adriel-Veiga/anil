@@ -1,4 +1,4 @@
-# Azul Sync
+# Anil
 
 Hub de comunicação interáreas em tempo real para ocorrências operacionais.
 
@@ -10,7 +10,7 @@ Durante uma ocorrência operacional, as informações existem de forma detalhada
 
 ## A solução
 
-O Azul Sync é uma aplicação web que atua como hub centralizador de informações. A ocorrência é registrada uma única vez e redistribuída de forma contextualizada e simultânea, por meio de controle de perfis de acesso. Cada setor visualiza apenas o recorte relevante para a sua atuação:
+O Anil é uma aplicação web que atua como hub centralizador de informações. A ocorrência é registrada uma única vez e redistribuída de forma contextualizada e simultânea, por meio de controle de perfis de acesso. Cada setor visualiza apenas o recorte relevante para a sua atuação:
 
 | Perfil | O que enxerga |
 |---|---|
@@ -53,8 +53,8 @@ Navegador (public/ + web/)  →  API Express (src/servidor.ts)  →  Banco SQLit
 Requisitos: **Node.js 20 ou superior**.
 
 ```bash
-git clone https://github.com/Adriel-Veiga/azul-sync.git
-cd azul-sync
+git clone https://github.com/Adriel-Veiga/anil.git
+cd anil
 npm install
 npm run build:web
 npm run seed
@@ -69,9 +69,9 @@ A senha de todas é `azul123` (apenas para o protótipo).
 
 | Perfil | E-mail |
 |---|---|
-| Cliente | `cliente@azulsync.test` |
-| Atendimento | `atendimento@azulsync.test` |
-| Manutenção / CCO | `cco@azulsync.test` |
+| Cliente | `cliente@anil.test` |
+| Atendimento | `atendimento@anil.test` |
+| Manutenção / CCO | `cco@anil.test` |
 
 Na tela de login, os botões de demonstração entram direto com cada perfil.
 
@@ -118,7 +118,7 @@ Seis tabelas, definidas em [`database/schema.sql`](database/schema.sql):
 ## Estrutura do repositório
 
 ```
-azul-sync/
+anil/
 ├── database/    schema.sql (modelo do banco)
 ├── docs/        matriz de acesso por perfil
 ├── public/      index.html, css/ e js/ (gerado a partir de web/)
