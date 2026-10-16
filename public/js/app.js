@@ -22,8 +22,14 @@ const ROTULOS = {
     CANCELADO: 'Cancelado',
     REACOMODADO: 'Reacomodado',
 };
+const NOMES_SETORES = {
+    MANUTENCAO: 'Manutenção',
+    COMERCIAL_MALHA: 'Comercial / Malha',
+    ATENDIMENTO_SOLO: 'Atendimento Solo',
+};
 let ultimoEstado = '';
 let temporizador;
+let filtroSetor = 'TODOS';
 //funções auxiliares para criar elementos HTML, buscar elementos existentes e formatar dados
 function el(tag, classe = '', texto) {
     const elemento = document.createElement(tag);
@@ -81,6 +87,9 @@ function abrirPainel(sessao) {
     $('usuario-perfil').textContent = NOMES_PERFIL[sessao.perfil];
     $('titulo-painel').textContent = TITULOS_PAINEL[sessao.perfil];
     $('acoes').hidden = sessao.perfil !== 'MANUTENCAO_CCO';
+    $('filtro-setor').hidden = sessao.perfil !== 'ATENDIMENTO_COMERCIAL';
+    filtroSetor = 'TODOS';
+    atualizarBotoesFiltro();
     ultimoEstado = '';
     window.clearInterval(temporizador);
     void carregar();
@@ -126,13 +135,22 @@ async function carregar() {
 function renderizar(perfil, ocorrencias, atualizacoes) {
     const lista = $('lista');
     lista.replaceChildren();
-    if (ocorrencias.length === 0) {
+    const setorSelecionado = perfil === 'ATENDIMENTO_COMERCIAL' ? filtroSetor : 'TODOS';
+    const visiveis = setorSelecionado === 'TODOS'
+        ? ocorrencias
+        : ocorrencias.filter((ocorrencia) => ocorrencia.setores_destino?.includes(setorSelecionado));
+    if (visiveis.length === 0) {
         lista.append(el('p', 'vazio', 'Nenhuma ocorrência no momento.'));
         return;
     }
-    for (const ocorrencia of ocorrencias) {
+    for (const ocorrencia of visiveis) {
         lista.append(criarCartao(perfil, ocorrencia, atualizacoes[ocorrencia.id] ?? []));
     }
+}
+function atualizarBotoesFiltro() {
+    document.querySelectorAll('[data-filtro-setor]').forEach((botao) => {
+        botao.setAttribute('aria-pressed', String(botao.dataset.filtroSetor === filtroSetor));
+    });
 }
 function secao(titulo, texto, classe = '') {
     const bloco = el('div', `secao ${classe}`.trim());
@@ -144,6 +162,13 @@ function criarCartao(perfil, o, atualizacoes) {
     const topo = el('div', 'cartao-topo');
     topo.append(el('h3', '', `Voo ${o.voo.numero} · ${o.voo.origem} → ${o.voo.destino}`), el('span', `selo ${o.voo.status.toLowerCase()}`, rotulo(o.voo.status)));
     cartao.append(topo);
+    if (perfil !== 'CLIENTE' && o.setores_destino?.length) {
+        const setores = el('div', 'setores-ocorrencia');
+        for (const setor of o.setores_destino) {
+            setores.append(el('span', 'selo setor', NOMES_SETORES[setor]));
+        }
+        cartao.append(setores);
+    }
     cartao.append(secao('Situação da ocorrência', `${rotulo(o.status)} · aberta às ${formatarHora(o.criada_em)}`));
     // os campos abaixo só chegam do servidor se o perfil puder vê-los
     if (o.tipo !== undefined) {
@@ -155,9 +180,25 @@ function criarCartao(perfil, o, atualizacoes) {
     if (o.recomendacao_operacional) {
         cartao.append(secao('Recomendação operacional', o.recomendacao_operacional));
     }
-    if (o.mensagem_cliente) {
+    if (perfil === 'ATENDIMENTO_COMERCIAL' && o.alerta_conexao) {
+        const alerta = el('section', 'conexao-risco');
+        alerta.append(el('h4', '', 'Passageiros em risco de conexão'), el('p', '', o.alerta_conexao));
+        for (const passageiro of o.passageiros_em_risco ?? []) {
+            alerta.append(el('p', 'passageiro-risco', `${passageiro.nome} · conexão ${passageiro.voo_conexao}`));
+        }
+        cartao.append(alerta);
+    }
+    const mensagemCliente = perfil === 'CLIENTE' && o.informacao_conexao
+        ? o.mensagem_cliente?.replace(`\n\n${o.informacao_conexao}`, '') ?? null
+        : o.mensagem_cliente;
+    if (mensagemCliente) {
         const titulo = perfil === 'CLIENTE' ? 'Informação sobre o seu voo' : 'Mensagem enviada ao cliente';
-        cartao.append(secao(titulo, o.mensagem_cliente, 'cliente'));
+        cartao.append(secao(titulo, mensagemCliente, 'cliente'));
+    }
+    if (perfil === 'CLIENTE' && o.conexao_critica && o.informacao_conexao) {
+        const conexao = el('section', 'conexao-cliente');
+        conexao.append(el('h4', '', 'Conexão em acompanhamento'), el('p', '', o.informacao_conexao));
+        cartao.append(conexao);
     }
     if (perfil !== 'CLIENTE') {
         const bloco = el('div', 'atualizacoes');
@@ -207,6 +248,33 @@ function criarFormAtualizacao(ocorrenciaId) {
     linha.append(campo, botao);
     return linha;
 }
+async function criarOcorrencia(evento) {
+    evento.preventDefault();
+    const setoresDestino = [...document.querySelectorAll('#form-ocorrencia input[name="setoresDestino"]:checked')].map((campo) => campo.value);
+    const detalheTecnico = $('detalhe-ocorrencia').value.trim();
+    if (!detalheTecnico || setoresDestino.length === 0) {
+        mostrarAviso('Informe o detalhe operacional e selecione ao menos um setor.');
+        return;
+    }
+    try {
+        await api('/api/ocorrencias', {
+            metodo: 'POST',
+            corpo: {
+                vooId: Number(entrada('voo-ocorrencia').value),
+                tipo: entrada('tipo-ocorrencia').value,
+                detalheTecnico,
+                recomendacaoOperacional: entrada('recomendacao-ocorrencia').value.trim(),
+                setoresDestino,
+            },
+        });
+        $('form-ocorrencia').reset();
+        mostrarAviso(null);
+        await carregar();
+    }
+    catch (e) {
+        mostrarAviso(e instanceof Error ? e.message : 'Falha ao registrar ocorrência');
+    }
+}
 // inicialização: registra eventos e verifica se há sessão válida na aba
 function inicializar() {
     $('form-login').addEventListener('submit', (ev) => {
@@ -220,6 +288,18 @@ function inicializar() {
     document.querySelectorAll('[data-email]').forEach((botao) => {
         botao.addEventListener('click', () => void entrar(botao.dataset.email ?? '', SENHA_DEMO));
     });
+    document.querySelectorAll('[data-filtro-setor]').forEach((botao) => {
+        botao.addEventListener('click', () => {
+            const setor = botao.dataset.filtroSetor;
+            if (setor === 'TODOS' || setor === 'MANUTENCAO' || setor === 'COMERCIAL_MALHA' || setor === 'ATENDIMENTO_SOLO') {
+                filtroSetor = setor;
+                atualizarBotoesFiltro();
+                ultimoEstado = '';
+                void carregar();
+            }
+        });
+    });
+    $('form-ocorrencia').addEventListener('submit', (evento) => void criarOcorrencia(evento));
     $('botao-sair').addEventListener('click', sair);
     $('botao-simular').addEventListener('click', async () => {
         try {

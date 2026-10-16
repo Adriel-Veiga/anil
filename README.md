@@ -20,6 +20,8 @@ O Anil é uma aplicação web que atua como hub centralizador de informações. 
 
 Para o perfil Cliente, um tradutor de jargão converte o tipo da ocorrência em uma mensagem tranquilizadora e informativa. A mensagem simplifica a linguagem, mas não esconde que há atraso ou cancelamento. A regra de visibilidade completa está em [`docs/matriz-acesso.md`](docs/matriz-acesso.md).
 
+O CCO pode direcionar cada ocorrência para Manutenção, Comercial / Malha e/ou Atendimento Solo. Para passageiros com voos conectados no mesmo dia, o sistema calcula o tempo disponível após o atraso e sinaliza conexões abaixo de 40 minutos.
+
 ## Como funciona
 
 ```
@@ -61,7 +63,8 @@ A senha de todas é `azul123` (apenas para o protótipo).
 
 | Perfil | E-mail |
 |---|---|
-| Cliente | `cliente@anil.test` |
+| Cliente (voo direto) | `cliente_direto@anil.test` |
+| Cliente (com conexão) | `cliente_conexao@anil.test` |
 | Atendimento | `atendimento@anil.test` |
 | Manutenção / CCO | `cco@anil.test` |
 

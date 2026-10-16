@@ -31,9 +31,10 @@
       <p id="erro-login" class="erro" hidden></p>
       <div class="demo">
         <p>Acesso de demonstração (dados fictícios)</p>
-        <button type="button" data-email="cliente@anil.test">Cliente</button>
-        <button type="button" data-email="atendimento@anil.test">Atendimento</button>
-        <button type="button" data-email="cco@anil.test">Manutenção / CCO</button>
+        <button type="button" data-email="cco@anil.test">Entrar como CCO / Manutenção</button>
+        <button type="button" data-email="atendimento@anil.test">Entrar como Atendimento / Comercial</button>
+        <button type="button" data-email="cliente_direto@anil.test">Entrar como Cliente (Voo Direto)</button>
+        <button type="button" data-email="cliente_conexao@anil.test">Entrar como Cliente (Com Conexão)</button>
       </div>
     </section>
 
@@ -42,7 +43,45 @@
         <h2 id="titulo-painel"></h2>
         <div id="acoes" hidden>
           <button id="botao-simular" type="button">Simular ocorrência</button>
+          <form id="form-ocorrencia">
+            <h3>Registrar ocorrência</h3>
+            <div class="form-colunas">
+              <label>Voo
+                <select id="voo-ocorrencia" required>
+                  <option value="1">AD1234 · VCP para REC</option>
+                  <option value="2">AD5678 · REC para FOR</option>
+                </select>
+              </label>
+              <label>Tipo
+                <select id="tipo-ocorrencia" required>
+                  <option value="PANE_TECNICA">Pane técnica</option>
+                  <option value="CONDICAO_METEOROLOGICA">Condição meteorológica</option>
+                  <option value="ATRASO_TRIPULACAO">Atraso de tripulação</option>
+                  <option value="CANCELAMENTO">Cancelamento</option>
+                </select>
+              </label>
+            </div>
+            <label>Detalhe operacional
+              <textarea id="detalhe-ocorrencia" required maxlength="1000"></textarea>
+            </label>
+            <label>Recomendação operacional
+              <input id="recomendacao-ocorrencia" type="text" maxlength="500">
+            </label>
+            <fieldset>
+              <legend>Setores responsáveis</legend>
+              <label><input type="checkbox" name="setoresDestino" value="MANUTENCAO" checked> Manutenção</label>
+              <label><input type="checkbox" name="setoresDestino" value="COMERCIAL_MALHA" checked> Comercial / Malha</label>
+              <label><input type="checkbox" name="setoresDestino" value="ATENDIMENTO_SOLO" checked> Atendimento Solo</label>
+            </fieldset>
+            <button type="submit">Registrar ocorrência</button>
+          </form>
         </div>
+      </div>
+      <div id="filtro-setor" class="filtros-setor" role="group" aria-label="Filtrar ocorrências por setor" hidden>
+        <button type="button" data-filtro-setor="TODOS" aria-pressed="true">Todos</button>
+        <button type="button" data-filtro-setor="ATENDIMENTO_SOLO" aria-pressed="false">Atendimento Solo</button>
+        <button type="button" data-filtro-setor="COMERCIAL_MALHA" aria-pressed="false">Comercial / Malha</button>
+        <button type="button" data-filtro-setor="MANUTENCAO" aria-pressed="false">Manutenção</button>
       </div>
       <p id="aviso" class="erro" hidden></p>
       <div id="lista"></div>

@@ -21,7 +21,10 @@ CREATE TABLE voos (
   origem VARCHAR(3) NOT NULL,
   destino VARCHAR(3) NOT NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'NORMAL'
-    CHECK (status IN ('NORMAL', 'ATRASADO', 'CANCELADO', 'REACOMODADO'))
+    CHECK (status IN ('NORMAL', 'ATRASADO', 'CANCELADO', 'REACOMODADO')),
+  partida_prevista TEXT,
+  chegada_prevista TEXT,
+  atraso_minutos INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE passageiros_voos (
@@ -41,6 +44,7 @@ CREATE TABLE ocorrencias (
   detalhe_tecnico TEXT NOT NULL,
   recomendacao_operacional TEXT,
   mensagem_cliente TEXT,
+  setores_destino TEXT NOT NULL DEFAULT '["MANUTENCAO","COMERCIAL_MALHA","ATENDIMENTO_SOLO"]',
   criada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (voo_id) REFERENCES voos(id)
 );

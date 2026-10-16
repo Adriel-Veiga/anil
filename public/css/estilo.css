@@ -12,7 +12,8 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, san
 main { max-width: 900px; margin: 0 auto; padding: 20px; }
 .caixa { max-width: 420px; margin: 30px auto; background: #fff; padding: 24px; border-radius: 12px; border: 1px solid var(--borda); }
 label { display: block; margin-bottom: 12px; font-size: .9rem; }
-input[type=text], input[type=email], input[type=password] { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid var(--borda); border-radius: 8px; font: inherit; }
+input[type=text], input[type=email], input[type=password], select, textarea { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid var(--borda); border-radius: 8px; font: inherit; }
+textarea { min-height: 78px; resize: vertical; }
 button { padding: 10px 16px; border: 0; border-radius: 8px; background: var(--azul); color: #fff; font: inherit; cursor: pointer; }
 button:hover { background: var(--azul-escuro); }
 
@@ -22,6 +23,16 @@ button:hover { background: var(--azul-escuro); }
 
 .barra { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
 .barra h2 { margin: 0; }
+#acoes { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+#form-ocorrencia { width: min(100%, 520px); padding: 14px; background: #fff; border: 1px solid var(--borda); border-radius: 8px; }
+#form-ocorrencia h3 { margin: 0 0 12px; font-size: 1rem; }
+.form-colunas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+#form-ocorrencia fieldset { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 0 0 12px; padding: 10px; border: 1px solid var(--borda); border-radius: 6px; }
+#form-ocorrencia fieldset label { display: flex; align-items: center; gap: 6px; margin: 0; }
+#form-ocorrencia input[type=checkbox] { width: auto; margin: 0; }
+.filtros-setor { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.filtros-setor button { padding: 7px 11px; background: #e6edfb; color: var(--azul); }
+.filtros-setor button[aria-pressed=true] { background: var(--azul); color: #fff; }
 
 .cartao { background: #fff; border: 1px solid var(--borda); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
 .cartao-topo { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -31,6 +42,12 @@ button:hover { background: var(--azul-escuro); }
 .secao p { margin: 0; line-height: 1.5; }
 .secao.tecnico p { font-family: ui-monospace, Consolas, monospace; font-size: .85rem; background: #f0f3f9; padding: 8px; border-radius: 8px; }
 .secao.cliente p { background: #eaf3ff; padding: 10px; border-radius: 8px; }
+.setores-ocorrencia { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.selo.setor { background: #e8f0ef; color: #23645d; }
+.conexao-risco, .conexao-cliente { margin-top: 14px; padding: 12px; border: 1px solid #cf8a2e; border-radius: 8px; background: #fff4e5; color: #673f0d; }
+.conexao-risco h4, .conexao-cliente h4 { margin: 0 0 6px; font-size: .9rem; }
+.conexao-risco p, .conexao-cliente p { margin: 4px 0; line-height: 1.45; }
+.passageiro-risco { font-weight: 600; }
 
 .selo { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .75rem; font-weight: 600; background: #e6edfb; color: var(--azul); }
 .selo.normal, .selo.resolvida { background: #dff5e6; color: #17703a; }
@@ -45,4 +62,4 @@ button:hover { background: var(--azul-escuro); }
 .erro { color: #a31616; }
 .vazio, .rodape { color: #7a879c; font-size: .85rem; }
 
-@media (max-width: 600px) { main { padding: 12px; } }
+@media (max-width: 600px) { main { padding: 12px; } .form-colunas { grid-template-columns: 1fr; } }

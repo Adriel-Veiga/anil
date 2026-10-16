@@ -4,9 +4,10 @@ import path from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { db } from './banco';
 import { verificarSenha } from './seguranca';
+import { conexaoCritica } from './conexoes';
 import { filtrarOcorrencia } from './visibilidade';
 import { gerarMensagemCliente } from './tradutor';
-import type { LinhaOcorrencia, PerfilNome, Sessao } from './tipos';
+import type { ContextoConexao, LinhaOcorrencia, PerfilNome, PassageiroEmRisco, Sessao, SetorDestino } from './tipos';
 
 const app = express();
 app.use(express.json());
@@ -60,8 +61,54 @@ app.post('/api/login', (req, res) => {
 });
 // Rota de logout
 const SELECT_OCORRENCIAS = `
-  SELECT o.*, v.numero AS voo_numero, v.origem, v.destino, v.status AS voo_status
+  SELECT o.*, o.setores_destino AS setores_destino_json,
+         v.numero AS voo_numero, v.origem, v.destino, v.status AS voo_status,
+         v.partida_prevista, v.chegada_prevista, v.atraso_minutos
   FROM ocorrencias o JOIN voos v ON v.id = o.voo_id`;
+
+interface LinhaConexao {
+  usuario_id: number;
+  nome: string;
+  voo_conexao: string;
+  chegada_prevista: string;
+  atraso_minutos: number;
+  partida_conexao: string;
+}
+
+const SETORES_VALIDOS: SetorDestino[] = ['MANUTENCAO', 'COMERCIAL_MALHA', 'ATENDIMENTO_SOLO'];
+const SETORES_PADRAO = [...SETORES_VALIDOS];
+
+function buscarConexoesCriticas(vooId: number, usuarioId?: number): ContextoConexao {
+  const filtroUsuario = usuarioId === undefined ? '' : 'AND pv1.usuario_id = ?';
+  const parametros = usuarioId === undefined ? [vooId] : [vooId, usuarioId];
+  const conexoes = db.prepare(
+    `SELECT pv1.usuario_id, u.nome, v2.numero AS voo_conexao,
+            v1.chegada_prevista, v1.atraso_minutos, v2.partida_prevista AS partida_conexao
+     FROM passageiros_voos pv1
+     JOIN usuarios u ON u.id = pv1.usuario_id
+     JOIN voos v1 ON v1.id = pv1.voo_id
+     JOIN passageiros_voos pv2 ON pv2.usuario_id = pv1.usuario_id AND pv2.voo_id <> pv1.voo_id
+     JOIN voos v2 ON v2.id = pv2.voo_id
+     WHERE pv1.voo_id = ? ${filtroUsuario}
+       AND v1.destino = v2.origem
+       AND date(v1.chegada_prevista) = date(v2.partida_prevista)
+       AND v2.partida_prevista >= v1.chegada_prevista
+     ORDER BY pv1.usuario_id, v2.partida_prevista`
+  ).all(...parametros) as LinhaConexao[];
+
+  const vistos = new Set<number>();
+  const passageiros: PassageiroEmRisco[] = [];
+  for (const conexao of conexoes) {
+    if (vistos.has(conexao.usuario_id)) {
+      continue;
+    }
+    vistos.add(conexao.usuario_id);
+    if (conexaoCritica(conexao.chegada_prevista, conexao.partida_conexao, conexao.atraso_minutos)) {
+      passageiros.push({ nome: conexao.nome, voo_conexao: conexao.voo_conexao });
+    }
+  }
+  return { critica: passageiros.length > 0, passageiros };
+}
 
 type AtualizacaoComOcorrencia = {
   ocorrencia_id: number;
@@ -85,7 +132,12 @@ app.get('/api/ocorrencias', autenticar, (_req, res) => {
       : db.prepare(`${SELECT_OCORRENCIAS} ORDER BY o.id DESC`).all()
   ) as LinhaOcorrencia[];
 
-  res.json(linhas.map((linha) => filtrarOcorrencia(linha, sessao.perfil)));
+  res.json(linhas.map((linha) => {
+    const conexao = sessao.perfil === 'CLIENTE' || sessao.perfil === 'ATENDIMENTO_COMERCIAL'
+      ? buscarConexoesCriticas(linha.voo_id, sessao.perfil === 'CLIENTE' ? sessao.usuarioId : undefined)
+      : undefined;
+    return filtrarOcorrencia(linha, sessao.perfil, conexao);
+  }));
 });
 
 app.get('/api/atualizacoes', autenticar, exigirPerfil('MANUTENCAO_CCO', 'ATENDIMENTO_COMERCIAL'), (_req, res) => {
@@ -104,15 +156,25 @@ app.get('/api/atualizacoes', autenticar, exigirPerfil('MANUTENCAO_CCO', 'ATENDIM
 });
 // Rota para criar uma nova ocorrência
 app.post('/api/ocorrencias', autenticar, exigirPerfil('MANUTENCAO_CCO'), (req, res) => {
-  const { vooId, tipo, detalheTecnico, recomendacaoOperacional } = (req.body ?? {}) as {
+  const { vooId, tipo, detalheTecnico, recomendacaoOperacional, setoresDestino } = (req.body ?? {}) as {
     vooId?: unknown;
     tipo?: unknown;
     detalheTecnico?: unknown;
     recomendacaoOperacional?: unknown;
+    setoresDestino?: unknown;
   };
 
   if (typeof vooId !== 'number' || typeof tipo !== 'string' || typeof detalheTecnico !== 'string' || !detalheTecnico.trim()) {
     res.status(400).json({ erro: 'Dados inválidos' });
+    return;
+  }
+  const setores = setoresDestino === undefined ? SETORES_PADRAO : setoresDestino;
+  if (
+    !Array.isArray(setores) ||
+    setores.length === 0 ||
+    setores.some((setor) => typeof setor !== 'string' || !SETORES_VALIDOS.includes(setor as SetorDestino))
+  ) {
+    res.status(400).json({ erro: 'Selecione ao menos um setor válido' });
     return;
   }
   const voo = db.prepare('SELECT numero FROM voos WHERE id = ?').get(vooId) as { numero: string } | undefined;
@@ -123,10 +185,17 @@ app.post('/api/ocorrencias', autenticar, exigirPerfil('MANUTENCAO_CCO'), (req, r
   const recomendacao = typeof recomendacaoOperacional === 'string' ? recomendacaoOperacional : null;
   const resultado = db
     .prepare(
-      `INSERT INTO ocorrencias (voo_id, tipo, detalhe_tecnico, recomendacao_operacional, mensagem_cliente)
-       VALUES (?, ?, ?, ?, ?)`
+      `INSERT INTO ocorrencias (voo_id, tipo, detalhe_tecnico, recomendacao_operacional, mensagem_cliente, setores_destino)
+       VALUES (?, ?, ?, ?, ?, ?)`
     )
-    .run(vooId, tipo, detalheTecnico, recomendacao, gerarMensagemCliente(tipo, voo.numero));
+    .run(
+      vooId,
+      tipo,
+      detalheTecnico,
+      recomendacao,
+      gerarMensagemCliente(tipo, voo.numero),
+      JSON.stringify([...new Set(setores as SetorDestino[])])
+    );
 
   res.status(201).json({ id: Number(resultado.lastInsertRowid) });
 });

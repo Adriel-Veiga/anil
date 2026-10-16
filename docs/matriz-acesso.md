@@ -7,6 +7,9 @@ Cada perfil visualiza apenas o recorte da ocorrência relevante para a sua atua�
 | detalhe_tecnico (logs e status da aeronave) | Sim | Não | Não |
 | recomendacao_operacional (remanejamento e suporte) | Sim | Sim | Não |
 | mensagem_cliente (texto simplificado) | Sim | Sim | Sim |
+| setores_destino (setores responsáveis) | Sim | Sim | Não |
+| alerta_conexao e passageiros_em_risco | Não | Sim | Não |
+| conexao_critica e orientação da própria conexão | Não | Não | Sim |
 | atualizacoes (histórico interno) | Sim | Sim | Não |
 | status da ocorrência | Sim | Sim | Sim |
 

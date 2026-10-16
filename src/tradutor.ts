@@ -1,4 +1,7 @@
 //MENSAGENS AUTOMÁTICAS PARA O CLIENTE
+export const MENSAGEM_CONEXAO_CRITICA =
+  'Acompanhamento da sua conexão em Recife: Identificamos um ajuste no seu primeiro voo. Nossa equipe de solo em Recife já está ciente e orientará o seu desembarque e o acesso ao seu próximo voo para Fortaleza.';
+
 const modelos: Record<string, (voo: string) => string> = {
   PANE_TECNICA: (voo) =>
     `Seu voo ${voo} está passando por uma verificação técnica adicional, feita para garantir a sua segurança. Nossa equipe já está cuidando disso e vamos avisar assim que houver novidades. O atendimento está pronto para ajudar você com as próximas opções.`,
