@@ -1,6 +1,6 @@
 # Anil
 
-Software de comunicações operacionais.
+Sistema de comunicações operacionais.
 
 Proposta de solução para a **Seletiva da Azul Linhas Aéreas**, com foco no **Tema 3: Comunicação Interáreas em Tempo Real**
 
@@ -10,7 +10,7 @@ Durante uma ocorrência operacional, as informações existem de forma detalhada
 
 ## A solução
 
-O Anil é uma aplicação web que atua como hub centralizador de informações. A ocorrência é registrada uma única vez e redistribuída de forma contextualizada e simultânea, por meio de controle de perfis de acesso. Cada setor visualiza apenas o recorte relevante para a sua atuação:
+O Anil é uma aplicação web que atua como hub centralizador de informações e gerenciador de crises. A ocorrência é registrada uma única vez e redistribuída de forma contextualizada e simultânea, por meio de controle de perfis de acesso. Cada setor visualiza apenas o recorte relevante para a sua atuação:
 
 | Perfil | O que enxerga |
 |---|---|
