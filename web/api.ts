@@ -1,7 +1,7 @@
 /// API PARA O FRONT
 import type { Perfil, Sessao } from './tipos.js';
 
-const CHAVE_SESSAO = 'azul-sync-sessao';
+const CHAVE_SESSAO = 'anil-sessao';
 const PERFIS: Perfil[] = ['MANUTENCAO_CCO', 'ATENDIMENTO_COMERCIAL', 'CLIENTE'];
 
 let aoExpirar: () => void = () => {};

@@ -5,7 +5,7 @@ import path from 'node:path';
 
 const raiz = path.join(__dirname, '..');
 // Caminho para o arquivo do banco de dados
-export const db = new Database(path.join(raiz, 'azul-sync.db'));
+export const db = new Database(path.join(raiz, 'anil.db'));
 db.pragma('foreign_keys = ON');
 // Função para recriar o banco de dados a partir do arquivo schema.sql
 export function recriarBanco(): void {

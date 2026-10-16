@@ -180,5 +180,5 @@ app.post(
 // Inicia o servidor
 const PORTA = Number(process.env.PORT) || 3000;
 app.listen(PORTA, () => {
-  console.log(`Azul Sync rodando em http://localhost:${PORTA}`);
+  console.log(`Anil rodando em http://localhost:${PORTA}`);
 });

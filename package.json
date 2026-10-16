@@ -1,5 +1,5 @@
 {
-  "name": "azul-sync",
+  "name": "anil",
   "version": "1.0.0",
   "description": "Hub de comunicação interáreas em tempo real para ocorrências operacionais",
   "main": "index.js",
@@ -18,15 +18,15 @@
 },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Adriel-Veiga/azul-sync.git"
+    "url": "git+https://github.com/Adriel-Veiga/anil.git"
   },
   "keywords": [],
   "author": "Adriel Veiga",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Adriel-Veiga/azul-sync/issues"
+    "url": "https://github.com/Adriel-Veiga/anil/issues"
   },
-  "homepage": "https://github.com/Adriel-Veiga/azul-sync#readme",
+  "homepage": "https://github.com/Adriel-Veiga/anil#readme",
   "devDependencies": {
     "@types/better-sqlite3": "^9.6.0",
     "@types/express": "^5.0.6",
