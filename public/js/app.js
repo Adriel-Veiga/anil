@@ -30,6 +30,7 @@ const NOMES_SETORES = {
 let ultimoEstado = '';
 let temporizador;
 let filtroSetor = 'TODOS';
+let tiposOcorrencia = [];
 //funções auxiliares para criar elementos HTML, buscar elementos existentes e formatar dados
 function el(tag, classe = '', texto) {
     const elemento = document.createElement(tag);
@@ -86,6 +87,7 @@ function abrirPainel(sessao) {
     $('usuario-nome').textContent = sessao.nome;
     $('usuario-perfil').textContent = NOMES_PERFIL[sessao.perfil];
     $('titulo-painel').textContent = TITULOS_PAINEL[sessao.perfil];
+    $('botao-ocorrencia').hidden = sessao.perfil !== 'MANUTENCAO_CCO';
     $('acoes').hidden = sessao.perfil !== 'MANUTENCAO_CCO';
     $('filtro-setor').hidden = sessao.perfil !== 'ATENDIMENTO_COMERCIAL';
     filtroSetor = 'TODOS';
@@ -268,11 +270,32 @@ async function criarOcorrencia(evento) {
             },
         });
         $('form-ocorrencia').reset();
+        $('modal-ocorrencia').close();
         mostrarAviso(null);
         await carregar();
     }
     catch (e) {
         mostrarAviso(e instanceof Error ? e.message : 'Falha ao registrar ocorrência');
+    }
+}
+async function abrirModalOcorrencia() {
+    try {
+        if (tiposOcorrencia.length === 0) {
+            tiposOcorrencia = await api('/api/tipos-ocorrencia');
+            const seletorTipo = $('tipo-ocorrencia');
+            for (const tipo of tiposOcorrencia) {
+                const opcao = document.createElement('option');
+                opcao.value = tipo.codigo;
+                opcao.textContent = tipo.nome;
+                seletorTipo.append(opcao);
+            }
+        }
+        $('form-ocorrencia').reset();
+        $('modal-ocorrencia').showModal();
+        mostrarAviso(null);
+    }
+    catch (e) {
+        mostrarAviso(e instanceof Error ? e.message : 'Não foi possível carregar os tipos de ocorrência');
     }
 }
 // inicialização: registra eventos e verifica se há sessão válida na aba
@@ -300,6 +323,15 @@ function inicializar() {
         });
     });
     $('form-ocorrencia').addEventListener('submit', (evento) => void criarOcorrencia(evento));
+    $('botao-ocorrencia').addEventListener('click', () => void abrirModalOcorrencia());
+    $('botao-fechar-modal').addEventListener('click', () => {
+        $('modal-ocorrencia').close();
+    });
+    $('tipo-ocorrencia').addEventListener('change', () => {
+        const tipo = tiposOcorrencia.find((item) => item.codigo === $('tipo-ocorrencia').value);
+        $('detalhe-ocorrencia').value = tipo?.detalhe_operacional ?? '';
+        entrada('recomendacao-ocorrencia').value = tipo?.recomendacao_operacional ?? '';
+    });
     $('botao-sair').addEventListener('click', sair);
     $('botao-simular').addEventListener('click', async () => {
         try {

@@ -1,7 +1,7 @@
 //INTERFACE DE LOGIN E DO PAINEL DE OCORRÊNCIAS
 import { api, definirAoExpirar, definirSessao, obterSessao } from './api.js';
 import { simularOcorrencia } from './simulacao.js';
-import type { Atualizacao, Ocorrencia, Perfil, Sessao, SetorDestino } from './tipos.js';
+import type { Atualizacao, Ocorrencia, Perfil, Sessao, SetorDestino, TipoOcorrencia } from './tipos.js';
 
 const INTERVALO_MS = 3000;
 const SENHA_DEMO = 'azul123'; // precisa ser a mesma usada no seed.ts
@@ -37,6 +37,7 @@ const NOMES_SETORES: Record<SetorDestino, string> = {
 let ultimoEstado = '';
 let temporizador: number | undefined;
 let filtroSetor: SetorDestino | 'TODOS' = 'TODOS';
+let tiposOcorrencia: TipoOcorrencia[] = [];
 
 //funções auxiliares para criar elementos HTML, buscar elementos existentes e formatar dados
 
@@ -106,6 +107,7 @@ function abrirPainel(sessao: Sessao): void {
   $('usuario-nome').textContent = sessao.nome;
   $('usuario-perfil').textContent = NOMES_PERFIL[sessao.perfil];
   $('titulo-painel').textContent = TITULOS_PAINEL[sessao.perfil];
+  $('botao-ocorrencia').hidden = sessao.perfil !== 'MANUTENCAO_CCO';
   $('acoes').hidden = sessao.perfil !== 'MANUTENCAO_CCO';
   $('filtro-setor').hidden = sessao.perfil !== 'ATENDIMENTO_COMERCIAL';
   filtroSetor = 'TODOS';
@@ -313,10 +315,31 @@ async function criarOcorrencia(evento: Event): Promise<void> {
       },
     });
     ($('form-ocorrencia') as HTMLFormElement).reset();
+    ($('modal-ocorrencia') as HTMLDialogElement).close();
     mostrarAviso(null);
     await carregar();
   } catch (e) {
     mostrarAviso(e instanceof Error ? e.message : 'Falha ao registrar ocorrência');
+  }
+}
+
+async function abrirModalOcorrencia(): Promise<void> {
+  try {
+    if (tiposOcorrencia.length === 0) {
+      tiposOcorrencia = await api<TipoOcorrencia[]>('/api/tipos-ocorrencia');
+      const seletorTipo = $('tipo-ocorrencia') as HTMLSelectElement;
+      for (const tipo of tiposOcorrencia) {
+        const opcao = document.createElement('option');
+        opcao.value = tipo.codigo;
+        opcao.textContent = tipo.nome;
+        seletorTipo.append(opcao);
+      }
+    }
+    ($('form-ocorrencia') as HTMLFormElement).reset();
+    ($('modal-ocorrencia') as HTMLDialogElement).showModal();
+    mostrarAviso(null);
+  } catch (e) {
+    mostrarAviso(e instanceof Error ? e.message : 'Não foi possível carregar os tipos de ocorrência');
   }
 }
 
@@ -349,6 +372,16 @@ function inicializar(): void {
   });
 
   $('form-ocorrencia').addEventListener('submit', (evento) => void criarOcorrencia(evento));
+
+  $('botao-ocorrencia').addEventListener('click', () => void abrirModalOcorrencia());
+  $('botao-fechar-modal').addEventListener('click', () => {
+    ($('modal-ocorrencia') as HTMLDialogElement).close();
+  });
+  $('tipo-ocorrencia').addEventListener('change', () => {
+    const tipo = tiposOcorrencia.find((item) => item.codigo === ($('tipo-ocorrencia') as HTMLSelectElement).value);
+    ($('detalhe-ocorrencia') as HTMLTextAreaElement).value = tipo?.detalhe_operacional ?? '';
+    entrada('recomendacao-ocorrencia').value = tipo?.recomendacao_operacional ?? '';
+  });
 
   $('botao-sair').addEventListener('click', sair);
 

@@ -95,6 +95,7 @@ Na tela de login, os botões de demonstração entram direto com cada perfil.
 | `POST /api/login` | Todos | Autentica e devolve o token |
 | `GET /api/ocorrencias` | Todos | Lista as ocorrências, já filtradas pelo perfil. O Cliente só recebe os voos dele |
 | `POST /api/ocorrencias` | CCO | Cria uma ocorrência e gera a mensagem do cliente |
+| `GET /api/tipos-ocorrencia` | CCO | Lista os tipos e modelos de detalhe/recomendação operacional |
 | `GET /api/atualizacoes` | CCO, Atendimento | Histórico de atualizações de todas as ocorrências |
 | `GET /api/ocorrencias/:id/atualizacoes` | CCO, Atendimento | Histórico de uma ocorrência |
 | `POST /api/ocorrencias/:id/atualizacoes` | CCO, Atendimento | Registra uma atualização |
@@ -103,11 +104,12 @@ As rotas protegidas exigem o cabeçalho `Authorization: Bearer <token>`.
 
 ## Banco de dados
 
-Seis tabelas, definidas em [`database/schema.sql`](database/schema.sql):
+Sete tabelas, definidas em [`database/schema.sql`](database/schema.sql):
 
 - `perfis` e `usuarios`: quem usa o sistema e com qual nível de acesso.
 - `voos` e `passageiros_voos`: os voos e quais passageiros pertencem a cada um.
 - `ocorrencias`: o evento operacional, com **uma versão do texto para cada público** (`detalhe_tecnico`, `recomendacao_operacional` e `mensagem_cliente`).
+- `tipos_ocorrencia`: catálogo de modelos operacionais usados para preencher detalhe e recomendação ao selecionar um tipo no CCO.
 - `atualizacoes`: histórico de andamento, com o autor de cada registro.
 
 ## Estrutura do repositório

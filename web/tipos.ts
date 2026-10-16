@@ -44,3 +44,10 @@ export interface Sessao {
   nome: string;
   perfil: Perfil;
 }
+
+export interface TipoOcorrencia {
+  codigo: string;
+  nome: string;
+  detalhe_operacional: string;
+  recomendacao_operacional: string;
+}

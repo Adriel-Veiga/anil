@@ -12,6 +12,7 @@
     <div id="usuario" hidden>
       <span id="usuario-nome"></span>
       <span id="usuario-perfil" class="selo"></span>
+      <button id="botao-ocorrencia" type="button" hidden>Registrar ocorrência</button>
       <button id="botao-sair" type="button">Sair</button>
     </div>
   </header>
@@ -43,38 +44,6 @@
         <h2 id="titulo-painel"></h2>
         <div id="acoes" hidden>
           <button id="botao-simular" type="button">Simular ocorrência</button>
-          <form id="form-ocorrencia">
-            <h3>Registrar ocorrência</h3>
-            <div class="form-colunas">
-              <label>Voo
-                <select id="voo-ocorrencia" required>
-                  <option value="1">AD1234 · VCP para REC</option>
-                  <option value="2">AD5678 · REC para FOR</option>
-                </select>
-              </label>
-              <label>Tipo
-                <select id="tipo-ocorrencia" required>
-                  <option value="PANE_TECNICA">Pane técnica</option>
-                  <option value="CONDICAO_METEOROLOGICA">Condição meteorológica</option>
-                  <option value="ATRASO_TRIPULACAO">Atraso de tripulação</option>
-                  <option value="CANCELAMENTO">Cancelamento</option>
-                </select>
-              </label>
-            </div>
-            <label>Detalhe operacional
-              <textarea id="detalhe-ocorrencia" required maxlength="1000"></textarea>
-            </label>
-            <label>Recomendação operacional
-              <input id="recomendacao-ocorrencia" type="text" maxlength="500">
-            </label>
-            <fieldset>
-              <legend>Setores responsáveis</legend>
-              <label><input type="checkbox" name="setoresDestino" value="MANUTENCAO" checked> Manutenção</label>
-              <label><input type="checkbox" name="setoresDestino" value="COMERCIAL_MALHA" checked> Comercial / Malha</label>
-              <label><input type="checkbox" name="setoresDestino" value="ATENDIMENTO_SOLO" checked> Atendimento Solo</label>
-            </fieldset>
-            <button type="submit">Registrar ocorrência</button>
-          </form>
         </div>
       </div>
       <div id="filtro-setor" class="filtros-setor" role="group" aria-label="Filtrar ocorrências por setor" hidden>
@@ -88,6 +57,42 @@
       <p class="rodape">Atualização automática a cada 3 s · <span id="ultima-atualizacao"></span></p>
     </section>
   </main>
+
+  <dialog id="modal-ocorrencia" aria-labelledby="titulo-modal-ocorrencia">
+    <form id="form-ocorrencia">
+      <div class="modal-topo">
+        <h2 id="titulo-modal-ocorrencia">Registrar ocorrência</h2>
+        <button id="botao-fechar-modal" class="botao-secundario" type="button" aria-label="Fechar">Fechar</button>
+      </div>
+      <div class="form-colunas">
+        <label>Voo
+          <select id="voo-ocorrencia" required>
+            <option value="">Nenhum voo selecionado</option>
+            <option value="1">AD1234 · VCP para REC</option>
+            <option value="2">AD5678 · REC para FOR</option>
+          </select>
+        </label>
+        <label>Tipo
+          <select id="tipo-ocorrencia" required>
+            <option value="">Nenhum tipo selecionado</option>
+          </select>
+        </label>
+      </div>
+      <label>Detalhe operacional
+        <textarea id="detalhe-ocorrencia" required maxlength="1000"></textarea>
+      </label>
+      <label>Recomendação operacional
+        <input id="recomendacao-ocorrencia" type="text" maxlength="500">
+      </label>
+      <fieldset>
+        <legend>Setores responsáveis</legend>
+        <label><input type="checkbox" name="setoresDestino" value="MANUTENCAO" checked> Manutenção</label>
+        <label><input type="checkbox" name="setoresDestino" value="COMERCIAL_MALHA" checked> Comercial / Malha</label>
+        <label><input type="checkbox" name="setoresDestino" value="ATENDIMENTO_SOLO" checked> Atendimento Solo</label>
+      </fieldset>
+      <button type="submit">Registrar ocorrência</button>
+    </form>
+  </dialog>
 
   <script type="module" src="/js/app.js"></script>
 </body>

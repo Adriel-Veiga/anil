@@ -154,6 +154,14 @@ app.get('/api/atualizacoes', autenticar, exigirPerfil('MANUTENCAO_CCO', 'ATENDIM
   }
   res.json(atualizacoes);
 });
+
+app.get('/api/tipos-ocorrencia', autenticar, exigirPerfil('MANUTENCAO_CCO'), (_req, res) => {
+  const tipos = db
+    .prepare('SELECT codigo, nome, detalhe_operacional, recomendacao_operacional FROM tipos_ocorrencia ORDER BY nome')
+    .all();
+  res.json(tipos);
+});
+
 // Rota para criar uma nova ocorrência
 app.post('/api/ocorrencias', autenticar, exigirPerfil('MANUTENCAO_CCO'), (req, res) => {
   const { vooId, tipo, detalheTecnico, recomendacaoOperacional, setoresDestino } = (req.body ?? {}) as {
@@ -166,6 +174,11 @@ app.post('/api/ocorrencias', autenticar, exigirPerfil('MANUTENCAO_CCO'), (req, r
 
   if (typeof vooId !== 'number' || typeof tipo !== 'string' || typeof detalheTecnico !== 'string' || !detalheTecnico.trim()) {
     res.status(400).json({ erro: 'Dados inválidos' });
+    return;
+  }
+  const tipoCadastrado = db.prepare('SELECT codigo FROM tipos_ocorrencia WHERE codigo = ?').get(tipo);
+  if (!tipoCadastrado) {
+    res.status(400).json({ erro: 'Selecione um tipo de ocorrência válido' });
     return;
   }
   const setores = setoresDestino === undefined ? SETORES_PADRAO : setoresDestino;

@@ -27,6 +27,13 @@ CREATE TABLE voos (
   atraso_minutos INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE TABLE tipos_ocorrencia (
+  codigo VARCHAR(50) PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  detalhe_operacional TEXT NOT NULL,
+  recomendacao_operacional TEXT NOT NULL
+);
+
 CREATE TABLE passageiros_voos (
   usuario_id INTEGER NOT NULL,
   voo_id INTEGER NOT NULL,
